@@ -14,6 +14,8 @@ import {
 } from 'react-native-webrtc';
 import RTCTrackEvent from 'react-native-webrtc/lib/typescript/RTCTrackEvent';
 
+import {logDebug} from '@utils/log';
+
 import {RTCPeerConfig} from './types';
 
 const rtcConnFailedErr = new Error('rtc connection failed');
@@ -21,6 +23,7 @@ const rtcConnFailedErr = new Error('rtc connection failed');
 export default class RTCPeer extends EventEmitter {
     private pc: RTCPeerConnection | null;
     private readonly senders: { [key: string]: RTCRtpSender };
+    private makingOffer = false;
 
     public connected: boolean;
 
@@ -87,11 +90,13 @@ export default class RTCPeer extends EventEmitter {
 
     private async onNegotiationNeeded() {
         try {
-            const desc = await this.pc?.createOffer(this.sessionConstraints) as RTCSessionDescription;
-            await this.pc?.setLocalDescription(desc);
+            this.makingOffer = true;
+            await this.pc?.setLocalDescription();
             this.emit('offer', this.pc?.localDescription);
         } catch (err) {
             this.emit('error', err);
+        } finally {
+            this.makingOffer = false;
         }
     }
 
@@ -110,6 +115,10 @@ export default class RTCPeer extends EventEmitter {
 
         const msg = JSON.parse(data);
 
+        if (msg.type === 'offer' && (this.makingOffer || this.pc?.signalingState !== 'stable')) {
+            logDebug('signaling conflict, we are polite, proceeding...');
+        }
+
         try {
             switch (msg.type) {
                 case 'candidate':
@@ -117,7 +126,7 @@ export default class RTCPeer extends EventEmitter {
                     break;
                 case 'offer':
                     await this.pc.setRemoteDescription(new RTCSessionDescription(msg));
-                    await this.pc.setLocalDescription(await this.pc.createAnswer() as RTCSessionDescription);
+                    await this.pc.setLocalDescription();
                     this.emit('answer', this.pc.localDescription);
                     break;
                 case 'answer':

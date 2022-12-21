@@ -163,11 +163,7 @@ const doJoinCall = async (serverUrl: string, channelId: string, isDMorGM: boolea
     }
 
     if (isDMorGM) {
-        // FIXME (MM-46048) - HACK
-        // There's a race condition between unmuting and receiving existing tracks from other participants.
-        // Fixing this properly requires extensive and potentially breaking changes.
-        // Waiting for a second before unmuting is a decent workaround that should work in most cases.
-        setTimeout(() => unmuteMyself(), 1000);
+        unmuteMyself();
     }
 };
 
