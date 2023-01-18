@@ -60,6 +60,7 @@ export function loginOptions(config: ClientConfig, license: ClientLicense) {
     const isLicensed = license.IsLicensed === 'true';
     const samlEnabled = config.EnableSaml === 'true' && isLicensed && license.SAML === 'true';
     const gitlabEnabled = config.EnableSignUpWithGitLab === 'true';
+    const phabricatorEnabled = config.EnableSignUpWithPhabricator === 'true';
     const isMinServerVersionForFreeOAuth = isMinimumServerVersion(config.Version, 7, 6);
     let googleEnabled = false;
     let o365Enabled = false;
@@ -79,6 +80,7 @@ export function loginOptions(config: ClientConfig, license: ClientLicense) {
         [Sso.SAML]: samlEnabled,
         [Sso.GITLAB]: gitlabEnabled,
         [Sso.GOOGLE]: googleEnabled,
+        [Sso.PHABRICATOR]: phabricatorEnabled,
         [Sso.OFFICE365]: o365Enabled,
         [Sso.OPENID]: openIdEnabled,
     };

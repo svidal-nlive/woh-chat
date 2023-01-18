@@ -48,6 +48,11 @@ const SsoOptions = ({goToSso, ssoOnly, ssoOptions, theme}: Props) => {
                 sso.imageSrc = require('@assets/images/Icon_Google.png');
                 sso.id = t('mobile.login_options.google');
                 break;
+            case Sso.PHABRICATOR:
+                sso.defaultMessage = 'Phabricator';
+                sso.imageSrc = require('@assets/images/Icon_Phabricator.png');
+                sso.id = t('mobile.login_options.phabricator');
+                break;
             case Sso.OFFICE365:
                 sso.defaultMessage = 'Office 365';
                 sso.imageSrc = require('@assets/images/Icon_Office.png');
